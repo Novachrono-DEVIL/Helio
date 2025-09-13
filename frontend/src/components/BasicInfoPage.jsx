@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Phone, MapPin, Calendar, Users, ArrowRight } from 'lucide-react';
+import { User, Phone, MapPin, Calendar, Users, ArrowRight, AlertTriangle } from 'lucide-react';
 
 const BasicInfoPage = ({ onComplete }) => {
   const [formData, setFormData] = useState({
@@ -12,7 +12,8 @@ const BasicInfoPage = ({ onComplete }) => {
       name: '',
       relationship: '',
       phone: ''
-    }
+    },
+    allergies: ['']
   });
 
   const handleSubmit = (e) => {
@@ -23,7 +24,32 @@ const BasicInfoPage = ({ onComplete }) => {
       gender: formData.gender,
       phone: formData.phone,
       address: formData.address,
-      emergencyContact: formData.emergencyContact
+      emergencyContact: formData.emergencyContact,
+      allergies: formData.allergies.filter(allergy => allergy.trim() !== '')
+    });
+  };
+
+  const addAllergy = () => {
+    setFormData({
+      ...formData,
+      allergies: [...formData.allergies, '']
+    });
+  };
+
+  const updateAllergy = (index, value) => {
+    const newAllergies = [...formData.allergies];
+    newAllergies[index] = value;
+    setFormData({
+      ...formData,
+      allergies: newAllergies
+    });
+  };
+
+  const removeAllergy = (index) => {
+    const newAllergies = formData.allergies.filter((_, i) => i !== index);
+    setFormData({
+      ...formData,
+      allergies: newAllergies
     });
   };
 
@@ -211,6 +237,44 @@ const BasicInfoPage = ({ onComplete }) => {
                     required
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Allergies Section */}
+            <div className="space-y-4 border-t border-gray-200 pt-6">
+              <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
+                Known Allergies
+              </h3>
+              
+              <div className="space-y-3">
+                {formData.allergies.map((allergy, index) => (
+                  <div key={index} className="flex items-center space-x-3">
+                    <input
+                      type="text"
+                      value={allergy}
+                      onChange={(e) => updateAllergy(index, e.target.value)}
+                      className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                      placeholder="e.g., Penicillin, Peanuts, Latex"
+                    />
+                    {formData.allergies.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeAllergy(index)}
+                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={addAllergy}
+                  className="text-emerald-600 hover:text-emerald-700 text-sm font-medium flex items-center"
+                >
+                  + Add Another Allergy
+                </button>
               </div>
             </div>
 

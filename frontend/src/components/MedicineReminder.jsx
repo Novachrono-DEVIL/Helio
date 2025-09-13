@@ -6,10 +6,28 @@ const MedicineReminder = ({ onClose, onAddMedicine }) => {
     name: '',
     dosage: '',
     frequency: 'daily',
-    times: ['']
+    times: [''],
+    ingredients: ''
   });
   const [isListening, setIsListening] = useState(false);
+  const [allergyWarning, setAllergyWarning] = useState('');
 
+  // Mock allergy checking function
+  const checkAllergies = (medicineIngredients, userAllergies) => {
+    if (!medicineIngredients || !userAllergies) return '';
+    
+    const ingredients = medicineIngredients.toLowerCase().split(',').map(i => i.trim());
+    const allergies = userAllergies.map(a => a.toLowerCase());
+    
+    for (const ingredient of ingredients) {
+      for (const allergy of allergies) {
+        if (ingredient.includes(allergy) || allergy.includes(ingredient)) {
+          return `⚠️ WARNING: This medication may contain ${allergy.toUpperCase()}, which you are allergic to!`;
+        }
+      }
+    }
+    return '';
+  };
   const handleVoiceInput = () => {
     if ('webkitSpeechRecognition' in window) {
       const recognition = new window.webkitSpeechRecognition();
@@ -97,19 +115,35 @@ const MedicineReminder = ({ onClose, onAddMedicine }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    // Check for allergies before adding medicine
+    if (allergyWarning) {
+      const confirmed = window.confirm(
+        `${allergyWarning}\n\nAre you sure you want to add this medication? Please consult your doctor first.`
+      );
+      if (!confirmed) return;
+    }
+    
     const medicine = {
       id: Date.now().toString(),
       name: formData.name,
       dosage: formData.dosage,
       frequency: formData.frequency,
       times: formData.times.filter(time => time.trim() !== ''),
-      startDate: new Date().toISOString()
+      startDate: new Date().toISOString(),
+      ingredients: formData.ingredients
     };
     
     onAddMedicine(medicine);
     onClose();
   };
 
+  // Check allergies when ingredients change
+  React.useEffect(() => {
+    // Mock user allergies - in real app, this would come from user profile
+    const userAllergies = ['penicillin', 'sulfa', 'aspirin'];
+    const warning = checkAllergies(formData.ingredients, userAllergies);
+    setAllergyWarning(warning);
+  }, [formData.ingredients]);
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -180,6 +214,33 @@ const MedicineReminder = ({ onClose, onAddMedicine }) => {
               required
             />
           </div>
+
+          {/* Ingredients/Active Components */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Active Ingredients (Optional)
+            </label>
+            <input
+              type="text"
+              value={formData.ingredients}
+              onChange={(e) => setFormData({...formData, ingredients: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+              placeholder="e.g., Acetaminophen, Ibuprofen"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              This helps check for potential allergic reactions
+            </p>
+          </div>
+
+          {/* Allergy Warning */}
+          {allergyWarning && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="flex items-center">
+                <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
+                <p className="text-red-800 font-medium">{allergyWarning}</p>
+              </div>
+            </div>
+          )}
 
           {/* Frequency */}
           <div>

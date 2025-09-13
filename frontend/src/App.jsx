@@ -3,12 +3,14 @@ import WelcomePage from './components/WelcomePage';
 import AuthPage from './components/AuthPage';
 import BasicInfoPage from './components/BasicInfoPage';
 import Dashboard from './components/Dashboard';
+import DoctorDashboard from './components/DoctorDashboard';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
   const [user, setUser] = useState(null);
   const [medicines, setMedicines] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [appointmentSummaries, setAppointmentSummaries] = useState([]);
 
   const handleGetStarted = () => {
     setCurrentPage('auth');
@@ -16,7 +18,11 @@ function App() {
 
   const handleAuthSuccess = (userData) => {
     setUser({ ...userData, id: Date.now().toString() });
-    setCurrentPage('basicInfo');
+    if (userData.userType === 'doctor') {
+      setCurrentPage('doctorDashboard');
+    } else {
+      setCurrentPage('basicInfo');
+    }
   };
 
   const handleBasicInfoComplete = (basicInfo) => {
@@ -42,20 +48,39 @@ function App() {
     setAppointments(prev => prev.filter(apt => apt.id !== id));
   };
 
+  const handleSaveAppointmentSummary = (summary) => {
+    setAppointmentSummaries(prev => [...prev, summary]);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentPage('welcome');
+    setMedicines([]);
+    setAppointments([]);
+    setAppointmentSummaries([]);
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-100">
       {currentPage === 'welcome' && <WelcomePage onGetStarted={handleGetStarted} />}
       {currentPage === 'auth' && <AuthPage onAuthSuccess={handleAuthSuccess} />}
       {currentPage === 'basicInfo' && <BasicInfoPage onComplete={handleBasicInfoComplete} />}
+      {currentPage === 'doctorDashboard' && user && (
+        <DoctorDashboard 
+          user={user}
+          onLogout={handleLogout}
+        />
+      )}
       {currentPage === 'dashboard' && user && (
         <Dashboard 
           user={user} 
           medicines={medicines}
           appointments={appointments}
+          appointmentSummaries={appointmentSummaries}
           onAddMedicine={handleAddMedicine}
           onDeleteMedicine={handleDeleteMedicine}
           onAddAppointment={handleAddAppointment}
           onDeleteAppointment={handleDeleteAppointment}
+          onSaveAppointmentSummary={handleSaveAppointmentSummary}
         />
       )}
     </div>
