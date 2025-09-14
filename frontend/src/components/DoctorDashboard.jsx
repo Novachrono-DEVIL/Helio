@@ -1,34 +1,54 @@
 import React, { useState } from 'react';
 import { User, Pill, Calendar, Clock, AlertTriangle, FileText, Search, Filter } from 'lucide-react';
 
-const DoctorDashboard = ({ user, onLogout }) => {
+const DoctorDashboard = ({ user, onLogout, linkedPatientCode }) => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   
   // Mock patient data
-  const [patients] = useState([
-    {
-      id: '1',
-      name: 'John Doe',
-      age: 45,
-      lastVisit: '2024-01-15',
-      recentMedications: [
-        { name: 'Lisinopril', dosage: '10mg', lastTaken: '2024-01-20', frequency: 'Daily' },
-        { name: 'Metformin', dosage: '500mg', lastTaken: '2024-01-20', frequency: 'Twice daily' }
-      ],
-      allergies: ['Penicillin', 'Shellfish']
-    },
-    {
-      id: '2',
-      name: 'Jane Smith',
-      age: 32,
-      lastVisit: '2024-01-18',
-      recentMedications: [
-        { name: 'Ibuprofen', dosage: '400mg', lastTaken: '2024-01-19', frequency: 'As needed' }
-      ],
-      allergies: ['Latex']
+  const [patients] = useState(() => {
+    // If doctor has a specific patient code, show only that patient
+    if (linkedPatientCode) {
+      return [
+        {
+          id: linkedPatientCode,
+          name: 'Connected Patient',
+          age: 35,
+          lastVisit: '2024-01-20',
+          recentMedications: [
+            { name: 'Aspirin', dosage: '81mg', lastTaken: '2024-01-21', frequency: 'Daily' },
+            { name: 'Vitamin D', dosage: '1000IU', lastTaken: '2024-01-21', frequency: 'Daily' }
+          ],
+          allergies: ['Penicillin']
+        }
+      ];
     }
-  ]);
+    
+    // Default patient list for general doctor view
+    return [
+      {
+        id: '1',
+        name: 'John Doe',
+        age: 45,
+        lastVisit: '2024-01-15',
+        recentMedications: [
+          { name: 'Lisinopril', dosage: '10mg', lastTaken: '2024-01-20', frequency: 'Daily' },
+          { name: 'Metformin', dosage: '500mg', lastTaken: '2024-01-20', frequency: 'Twice daily' }
+        ],
+        allergies: ['Penicillin', 'Shellfish']
+      },
+      {
+        id: '2',
+        name: 'Jane Smith',
+        age: 32,
+        lastVisit: '2024-01-18',
+        recentMedications: [
+          { name: 'Ibuprofen', dosage: '400mg', lastTaken: '2024-01-19', frequency: 'As needed' }
+        ],
+        allergies: ['Latex']
+      }
+    ];
+  });
 
   const filteredPatients = patients.filter(patient =>
     patient.name.toLowerCase().includes(searchTerm.toLowerCase())

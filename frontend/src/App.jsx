@@ -59,6 +59,11 @@ function App() {
     setAppointments([]);
     setAppointmentSummaries([]);
   };
+
+  const handleUpdateUser = (updatedUser) => {
+    setUser(updatedUser);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-100">
       {currentPage === 'welcome' && <WelcomePage onGetStarted={handleGetStarted} />}
@@ -67,12 +72,14 @@ function App() {
       {currentPage === 'doctorDashboard' && user && (
         <DoctorDashboard 
           user={user}
+          linkedPatientCode={user.linkedPatientCode}
           onLogout={handleLogout}
         />
       )}
       {currentPage === 'dashboard' && user && (
         <Dashboard 
           user={user} 
+          onUpdateUser={handleUpdateUser}
           medicines={medicines}
           appointments={appointments}
           appointmentSummaries={appointmentSummaries}

@@ -5,6 +5,7 @@ const AuthPage = ({ onAuthSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [userType, setUserType] = useState('patient');
   const [showPassword, setShowPassword] = useState(false);
+  const [patientCode, setPatientCode] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,20 +15,32 @@ const AuthPage = ({ onAuthSuccess }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Simulate authentication
-    onAuthSuccess({
+    const userData = {
       name: formData.name || 'John Doe',
       email: formData.email,
       userType: userType
-    });
+    };
+    
+    if (userType === 'doctor' && patientCode) {
+      userData.linkedPatientCode = patientCode;
+    }
+    
+    onAuthSuccess(userData);
   };
 
   const handleGoogleLogin = () => {
     // Simulate Google OAuth
-    onAuthSuccess({
+    const userData = {
       name: 'Google User',
       email: 'user@gmail.com',
       userType: userType
-    });
+    };
+    
+    if (userType === 'doctor' && patientCode) {
+      userData.linkedPatientCode = patientCode;
+    }
+    
+    onAuthSuccess(userData);
   };
   const handleInputChange = (e) => {
     setFormData({
@@ -91,6 +104,25 @@ const AuthPage = ({ onAuthSuccess }) => {
             </div>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Patient Code for Doctors */}
+          {userType === 'doctor' && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Patient Access Code (Optional)
+              </label>
+              <input
+                type="text"
+                value={patientCode}
+                onChange={(e) => setPatientCode(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                placeholder="Enter patient's unique code to access their records"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Leave empty to view general patient list
+              </p>
+            </div>
+          )}
+
             {!isLogin && (
               <div className="relative">
                 <User className="absolute left-3 top-3 w-5 h-5 text-gray-400" />

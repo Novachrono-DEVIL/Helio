@@ -85,18 +85,112 @@ const ProfileModal = ({ user, onClose }) => {
               <div className="bg-white/50 rounded-xl p-4">
                 <div className="flex items-center mb-2">
                   <Users className="w-5 h-5 text-gray-400 mr-3" />
-                  <div className="text-lg font-bold text-gray-800">{user.emergencyContact.name}</div>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedUser.emergencyContact.name}
+                      onChange={(e) => setEditedUser({
+                        ...editedUser,
+                        emergencyContact: {...editedUser.emergencyContact, name: e.target.value}
+                      })}
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Emergency contact name"
+                    />
+                  ) : (
+                    <div className="text-lg font-bold text-gray-800">{user.emergencyContact.name}</div>
+                  )}
                 </div>
                 <div className="ml-8">
                   <div className="text-sm text-gray-600 mb-1">Relationship</div>
-                  <div className="text-md font-semibold text-gray-800 capitalize mb-2">
-                    {user.emergencyContact.relationship}
-                  </div>
+                  {isEditing ? (
+                    <select
+                      value={editedUser.emergencyContact.relationship}
+                      onChange={(e) => setEditedUser({
+                        ...editedUser,
+                        emergencyContact: {...editedUser.emergencyContact, relationship: e.target.value}
+                      })}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent mb-2"
+                    >
+                      <option value="spouse">Spouse</option>
+                      <option value="parent">Parent</option>
+                      <option value="child">Child</option>
+                      <option value="sibling">Sibling</option>
+                      <option value="friend">Friend</option>
+                      <option value="other">Other</option>
+                    </select>
+                  ) : (
+                    <div className="text-md font-semibold text-gray-800 capitalize mb-2">
+                      {user.emergencyContact.relationship}
+                    </div>
+                  )}
                   <div className="text-sm text-gray-600 mb-1">Phone Number</div>
-                  <div className="text-md font-semibold text-gray-800">
-                    {user.emergencyContact.phone}
-                  </div>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      value={editedUser.emergencyContact.phone}
+                      onChange={(e) => setEditedUser({
+                        ...editedUser,
+                        emergencyContact: {...editedUser.emergencyContact, phone: e.target.value}
+                      })}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Emergency contact phone"
+                    />
+                  ) : (
+                    <div className="text-md font-semibold text-gray-800">
+                      {user.emergencyContact.phone}
+                    </div>
+                  )}
                 </div>
+              </div>
+            </div>
+
+            {/* Allergies Section */}
+            <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-2xl p-6 border border-orange-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-gray-800 flex items-center">
+                  <Shield className="w-5 h-5 mr-2 text-orange-600" />
+                  Known Allergies
+                </h3>
+                {isEditing && (
+                  <button
+                    onClick={addAllergy}
+                    className="flex items-center space-x-1 px-3 py-1 bg-orange-600 text-white rounded-lg text-sm hover:bg-orange-700 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add</span>
+                  </button>
+                )}
+              </div>
+              <div className="space-y-2">
+                {(editedUser.allergies || []).length > 0 ? (
+                  (editedUser.allergies || []).map((allergy, index) => (
+                    <div key={index} className="flex items-center space-x-2">
+                      {isEditing ? (
+                        <>
+                          <input
+                            type="text"
+                            value={allergy}
+                            onChange={(e) => updateAllergy(index, e.target.value)}
+                            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            placeholder="Enter allergy"
+                          />
+                          <button
+                            onClick={() => removeAllergy(index)}
+                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
+                          {allergy}
+                        </span>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-600 text-sm">No known allergies</p>
+                )}
               </div>
             </div>
           </div>

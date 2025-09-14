@@ -7,7 +7,9 @@ const MedicineReminder = ({ onClose, onAddMedicine }) => {
     dosage: '',
     frequency: 'daily',
     times: [''],
-    ingredients: ''
+    ingredients: '',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: ''
   });
   const [isListening, setIsListening] = useState(false);
   const [allergyWarning, setAllergyWarning] = useState('');
@@ -129,7 +131,8 @@ const MedicineReminder = ({ onClose, onAddMedicine }) => {
       dosage: formData.dosage,
       frequency: formData.frequency,
       times: formData.times.filter(time => time.trim() !== ''),
-      startDate: new Date().toISOString(),
+      startDate: formData.startDate,
+      endDate: formData.endDate,
       ingredients: formData.ingredients
     };
     
@@ -241,6 +244,37 @@ const MedicineReminder = ({ onClose, onAddMedicine }) => {
               </div>
             </div>
           )}
+
+          {/* Date Range */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Start Date
+              </label>
+              <input
+                type="date"
+                value={formData.startDate}
+                onChange={(e) => setFormData({...formData, startDate: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                End Date (Optional)
+              </label>
+              <input
+                type="date"
+                value={formData.endDate}
+                onChange={(e) => setFormData({...formData, endDate: e.target.value})}
+                min={formData.startDate}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Leave empty for ongoing medication
+              </p>
+            </div>
+          </div>
 
           {/* Frequency */}
           <div>
