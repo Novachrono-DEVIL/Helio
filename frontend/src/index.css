@@ -1,0 +1,5 @@
+
+/* Ensure Tailwind CSS is processed by your build tool */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
