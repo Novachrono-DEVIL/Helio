@@ -73,8 +73,9 @@ const ProfileModal = ({ user, onClose, onUpdateProfile }) => {
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 max-w-2xl w-full max-h-[85vh] overflow-hidden">
+        
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+        <div className="flex justify-between items-center p-6 border-b border-gray-200 relative">
           <div className="flex items-center">
             <div className="w-16 h-16 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg mr-4">
               {user.name.charAt(0).toUpperCase()}
@@ -84,12 +85,36 @@ const ProfileModal = ({ user, onClose, onUpdateProfile }) => {
               <p className="text-gray-600">Profile Details</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X className="w-6 h-6 text-gray-600" />
-          </button>
+
+          <div className="flex items-center space-x-3">
+            {/* ✏️ Edit/Save button at top */}
+            {isEditing ? (
+              <button
+                onClick={handleSave}
+                className="p-2 hover:bg-emerald-100 rounded-full transition-colors"
+                title="Save Changes"
+              >
+                <Save className="w-6 h-6 text-emerald-600" />
+              </button>
+            ) : (
+              <button
+                onClick={handleEdit}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                title="Edit Profile"
+              >
+                <Pencil className="w-6 h-6 text-gray-600" />
+              </button>
+            )}
+
+            {/* ❌ Close button */}
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              title="Close"
+            >
+              <X className="w-6 h-6 text-gray-600" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Content */}
@@ -197,69 +222,71 @@ const ProfileModal = ({ user, onClose, onUpdateProfile }) => {
                 </div>
               </div>
             </div>
+{/* Emergency Contact */}
+<div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 border border-red-200">
+  <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+    <Shield className="w-5 h-5 mr-2 text-red-600" />
+    Emergency Contact
+  </h3>
+  <div className="bg-white/50 rounded-xl p-4">
+    <div className="flex items-center mb-2">
+      <Users className="w-5 h-5 text-gray-400 mr-3" />
+      {isEditing ? (
+        <input
+          type="text"
+          name="name"
+          value={editedUser.emergencyContact?.name || ""}
+          onChange={handleEmergencyContactChange}
+          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+          placeholder="Emergency contact name"
+        />
+      ) : (
+        <div className="text-lg font-bold text-gray-800">
+          {editedUser.emergencyContact?.name || "Not provided"}
+        </div>
+      )}
+    </div>
+    <div className="ml-8">
+      <div className="text-sm text-gray-600 mb-1">Relationship</div>
+      {isEditing ? (
+        <select
+          name="relationship"
+          value={editedUser.emergencyContact?.relationship || ""}
+          onChange={handleEmergencyContactChange}
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent mb-2"
+        >
+          <option value="spouse">Spouse</option>
+          <option value="parent">Parent</option>
+          <option value="child">Child</option>
+          <option value="sibling">Sibling</option>
+          <option value="friend">Friend</option>
+          <option value="other">Other</option>
+        </select>
+      ) : (
+        <div className="text-md font-semibold text-gray-800 capitalize mb-2">
+          {editedUser.emergencyContact?.relationship || "Not provided"}
+        </div>
+      )}
+      <div className="text-sm text-gray-600 mb-1">Phone Number</div>
+      {isEditing ? (
+        <input
+          type="tel"
+          name="phone"
+          value={editedUser.emergencyContact?.phone || ""}
+          onChange={handleEmergencyContactChange}
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+          placeholder="Emergency contact phone"
+        />
+      ) : (
+        <div className="text-md font-semibold text-gray-800">
+          {editedUser.emergencyContact?.phone || "Not provided"}
+        </div>
+      )}
+    </div>
+  </div>
+</div>
 
-            {/* Emergency Contact */}
-            <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 border border-red-200">
-              <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                <Shield className="w-5 h-5 mr-2 text-red-600" />
-                Emergency Contact
-              </h3>
-              <div className="bg-white/50 rounded-xl p-4">
-                <div className="flex items-center mb-2">
-                  <Users className="w-5 h-5 text-gray-400 mr-3" />
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="name"
-                      value={editedUser.emergencyContact?.name || ''}
-                      onChange={handleEmergencyContactChange}
-                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Emergency contact name"
-                    />
-                  ) : (
-                    <div className="text-lg font-bold text-gray-800">{user.emergencyContact?.name || 'Not provided'}</div>
-                  )}
-                </div>
-                <div className="ml-8">
-                  <div className="text-sm text-gray-600 mb-1">Relationship</div>
-                  {isEditing ? (
-                    <select
-                      name="relationship"
-                      value={editedUser.emergencyContact?.relationship || ''}
-                      onChange={handleEmergencyContactChange}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent mb-2"
-                    >
-                      <option value="spouse">Spouse</option>
-                      <option value="parent">Parent</option>
-                      <option value="child">Child</option>
-                      <option value="sibling">Sibling</option>
-                      <option value="friend">Friend</option>
-                      <option value="other">Other</option>
-                    </select>
-                  ) : (
-                    <div className="text-md font-semibold text-gray-800 capitalize mb-2">
-                      {user.emergencyContact?.relationship || 'Not provided'}
-                    </div>
-                  )}
-                  <div className="text-sm text-gray-600 mb-1">Phone Number</div>
-                  {isEditing ? (
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={editedUser.emergencyContact?.phone || ''}
-                      onChange={handleEmergencyContactChange}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Emergency contact phone"
-                    />
-                  ) : (
-                    <div className="text-md font-semibold text-gray-800">
-                      {user.emergencyContact?.phone || 'Not provided'}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
+          
             {/* Allergies Section */}
             <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-2xl p-6 border border-orange-200">
               <div className="flex items-center justify-between mb-4">

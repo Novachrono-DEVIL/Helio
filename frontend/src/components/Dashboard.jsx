@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { User, Pill, Calendar, MessageCircle, Shield, Clock, MapPin, Phone, Home, Info, Heart, Plus, Bell, FileText, Brain } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Pill, Calendar, MessageCircle, Shield, Clock, MapPin, Phone, Home, Info, Heart, Plus, Bell, FileText, Brain, AlertTriangle } from 'lucide-react';
 import MedicineReminder from './MedicineReminder';
 import AppointmentBooking from './AppointmentBooking';
 import ProfileModal from './ProfileModal';
@@ -27,10 +27,13 @@ const Dashboard = ({
   const [showMedicalRecords, setShowMedicalRecords] = useState(false);
   const [showAppointmentSummary, setShowAppointmentSummary] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [isAlerting, setIsAlerting] = useState(false);
+  const [countdown, setCountdown] = useState(10);
 
+  // A more robust way to get today's medicines that handles an undefined medicines prop
   const getTodaysMedicines = () => {
     const today = new Date().toDateString();
-    return medicines.filter(med => {
+    return (medicines || []).filter(med => {
       const startDate = new Date(med.startDate).toDateString();
       return startDate <= today;
     });
@@ -55,13 +58,40 @@ const Dashboard = ({
     const now = new Date();
     const today = now.toDateString();
     
-    return appointments
+    return (appointments || [])
       .filter(apt => new Date(apt.date).toDateString() >= today)
       .sort((a, b) => new Date(a.date + ' ' + a.time).getTime() - new Date(b.date + ' ' + b.time).getTime())[0];
   };
 
   const upcomingMedicine = getUpcomingMedicine();
   const upcomingAppointment = getUpcomingAppointment();
+
+  // Emergency Alert Logic
+  const handleSendAlert = () => {
+    setIsAlerting(true);
+    setCountdown(10);
+  };
+
+  const handleCancelAlert = () => {
+    setIsAlerting(false);
+    setCountdown(10);
+  };
+
+  useEffect(() => {
+    let timer;
+    if (isAlerting && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+    } else if (isAlerting && countdown === 0) {
+      // Logic to actually send the alert here
+      console.log('Emergency alert sent!');
+      setIsAlerting(false);
+      // You can add a success message or other feedback here
+    }
+
+    return () => clearTimeout(timer);
+  }, [isAlerting, countdown]);
 
   return (
     <>
@@ -374,59 +404,43 @@ const Dashboard = ({
               )}
             </div>
           )}
-
-          {/* Emergency SOS Section */}
-          <div className="bg-gradient-to-br from-red-500 to-pink-500 rounded-3xl shadow-xl overflow-hidden">
-            <div className="px-8 py-6 bg-gradient-to-r from-red-600 to-pink-600">
-              <div className="flex items-center text-white">
-                <Shield className="w-8 h-8 mr-3" />
-                <div>
-                  <h2 className="text-2xl font-bold">Emergency SOS</h2>
-                  <p className="text-red-100">Quick access to emergency contacts</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-white">
-              <h4 className="font-bold text-xl mb-4 flex items-center">
-                <User className="w-5 h-5 mr-2" />
-                Emergency Contact
-              </h4>
-              <div className="space-y-3">
-                <div className="font-semibold text-lg">
-                  {user?.emergencyContact?.name || "Not provided"}
-                </div>
-                <div className="text-red-100 capitalize text-sm">
-                  {user?.emergencyContact?.relationship || "Not provided"}
-                </div>
-                <div className="flex items-center">
-                  <Phone className="w-4 h-4 mr-2" />
-                  <span className="font-medium">
-                    {user?.emergencyContact?.phone || "Not provided"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="text-center">
-              <button className="bg-white text-red-600 font-bold py-6 px-12 rounded-2xl hover:bg-red-50 transition-all duration-300 transform hover:scale-105 shadow-2xl text-xl">
-                🚨 Send Emergency Alert
-              </button>
-              <p className="text-red-100 mt-4 text-sm">
-                This will immediately notify your emergency contact with your location
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* AI Chat Button */}
-      <button
-        onClick={() => setShowChatBot(true)}
-        className="fixed bottom-6 right-6 bg-gradient-to-br from-emerald-600 to-teal-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 z-50"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </button>
+      {/* Conditional Rendering for Alert/Countdown */}
+      {isAlerting ? (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl shadow-2xl p-10 text-center transform scale-105 transition-transform duration-300">
+            <div className="text-6xl font-bold text-red-600 mb-4 animate-pulse">{countdown}</div>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-6">Emergency Alert Sending...</h3>
+            <p className="text-gray-600 mb-8">Click cancel to stop the alert.</p>
+            <button
+              onClick={handleCancelAlert}
+              className="bg-gray-200 text-gray-700 font-bold py-3 px-8 rounded-full hover:bg-gray-300 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Emergency SOS Button */}
+          <button
+            onClick={handleSendAlert}
+            className="fixed bottom-24 right-6 bg-red-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 z-50"
+          >
+            <AlertTriangle className="w-6 h-6" />
+          </button>
+
+          {/* AI Chat Button */}
+          <button
+            onClick={() => setShowChatBot(true)}
+            className="fixed bottom-6 right-6 bg-gradient-to-br from-emerald-600 to-teal-600 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 z-50"
+          >
+            <MessageCircle className="w-6 h-6" />
+          </button>
+        </>
+      )}
 
       {/* Modals */}
       {showMedicineModal && (
@@ -472,18 +486,18 @@ const Dashboard = ({
         />
       )}
 
-      {showAppointmentSummary && selectedAppointment && (
-        <AppointmentSummaryModal 
-          onClose={() => {
-            setShowAppointmentSummary(false);
-            setSelectedAppointment(null);
-          }}
-          appointment={selectedAppointment}
-          onSaveSummary={onSaveAppointmentSummary}
-        />
-      )}
-    </>
-  );
+      {showAppointmentSummary && selectedAppointment && (
+        <AppointmentSummaryModal 
+          onClose={() => {
+            setShowAppointmentSummary(false);
+            setSelectedAppointment(null);
+          }}
+          appointment={selectedAppointment}
+          onSaveSummary={onSaveAppointmentSummary}
+        />
+      )}
+    </>
+  );
 };
 
 export default Dashboard;
