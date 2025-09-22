@@ -2,24 +2,7 @@ import React, { useState } from 'react';
 import { X, Upload, FileText, Image, Download, Trash2, Eye, Lock } from 'lucide-react';
 
 const MedicalRecordsModal = ({ onClose, user }) => {
-  const [records, setRecords] = useState([
-    {
-      id: '1',
-      name: 'Blood Test Results - Jan 2024',
-      type: 'pdf',
-      uploadDate: '2024-01-15',
-      size: '2.3 MB',
-      category: 'Lab Results'
-    },
-    {
-      id: '2',
-      name: 'X-Ray Chest - Dec 2023',
-      type: 'jpg',
-      uploadDate: '2023-12-20',
-      size: '1.8 MB',
-      category: 'Imaging'
-    }
-  ]);
+  
   const [dragActive, setDragActive] = useState(false);
 
   const handleDrag = (e) => {
